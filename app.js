@@ -18,4 +18,34 @@ const createDeck = () => {
     }
 }
 
+const createCardElement = (card) => { 
+    let element = document.createElement('div');
+    element.className = 'card';
+
+    let icon;
+    if (card.suit === 'Hearts')
+        icon = '&hearts;';
+    else if (card.suit === 'Spades')
+        icon = '&spades;';
+    else if (card.suit === 'Diamonds')
+        icon = '&diams;';
+    else
+        icon = '&clubs;';
+
+    element.innerHTML = card.value + '<br/>' + icon;
+
+    return element;
+}
+
+const renderDeck = () => {
+    const gameContainer = document.getElementById('gameContainer');
+
+    gameContainer ? gameContainer.innerHTML = '' : console.error("HTML element with ID 'gameContainer' not found.");
+    for (const card of deck) {
+        const cardElement = createCardElement(card);
+        gameContainer.appendChild(cardElement);
+    }
+}
+
 createDeck();
+renderDeck();
