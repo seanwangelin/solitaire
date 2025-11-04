@@ -76,6 +76,7 @@ const app = () => {
     let cardIndex = 0;
 
     const initialDeal = () => {
+        //deal cards to the 7 piles
         for (let i = 1; i <= 7; i++) {
             const pileElement = document.createElement("div");
             pileElement.className = "cardPile";
@@ -103,6 +104,7 @@ const app = () => {
             }
         }
 
+        // Create the stock pile with remaining cards
         if (cardIndex < deck.length) {
             const stockCard = deck[cardIndex];
             stockCard.faceUp = false;
@@ -116,6 +118,15 @@ const app = () => {
             console.log("No cards left for stock pile");
         }
     };
+
+    const drawCards = () => {
+        // Draw 3 cards from the stock pile on click
+        // for (let i = 0; i < 3; i++) {
+        // }
+        console.log("Drawing cards from stock pile");
+    }
+
+    stockContainer.addEventListener('click', drawCards);
 
     console.log(deck);
     console.log(`Deck count: ${deck.length - cardIndex}`);
