@@ -14,7 +14,6 @@ const createDeck = () => {
 
             let card = { value: value, suit: suit, weight: weight, faceUp: false };
             deck.push(card);
-            console.log(`Here is the deck: ${card.value} of ${card.suit} with weight ${card.weight}`);
         }
     }
 }
@@ -48,7 +47,7 @@ const createCardElement = (card) => {
 
 // shuffles up the deck
 //SRC: https://www.thatsoftwaredude.com/content/6417/how-to-code-blackjack-using-javascript
-function shuffle() {
+const shuffle = () => {
     for(let i = 0; i < 1000; i++) {
         let card1 = Math.floor((Math.random() * deck.length));
         let card2 = Math.floor((Math.random() * deck.length));
@@ -61,6 +60,7 @@ function shuffle() {
 // Function to render the deck on the webpage
 const renderGame = () => {
     const gameContainer = document.getElementById('gameContainer');
+    const stockContainer = document.getElementById('stockContainer');
 
     shuffle();
 
@@ -91,6 +91,24 @@ const renderGame = () => {
             cardIndex++;
         }
     }
+
+    if (cardIndex < deck.length) {
+        const stockCard = deck[cardIndex];
+        stockCard.faceUp = false;
+        const stockCardElement = createCardElement(stockCard);
+        stockCard.className = 'stockCard';
+        stockContainer.appendChild(stockCardElement);
+        
+
+
+        console.log("Creating stock pile");
+    } else {
+        stockContainer.innerHTML = '<div class="emptyStock"></div>';
+        console.log("No cards left for stock pile");
+    }
+
+    console.log(deck);
+    console.log(`Deck count: ${deck.length - cardIndex}`);
 }
 
 //     gameContainer ? gameContainer.innerHTML = '' : console.error("HTML element with ID 'gameContainer' not found.");

@@ -45,3 +45,28 @@
     min-height: 250px;     /* Ensure there is space for the longest pile (7 cards) */
     width: 70px;           /* Width of the card plus some padding */
 }
+
+#stockContainer {
+    /* If you want the stock pile and tableau in the same row, you might need a parent flex container */
+    margin: 20px; 
+}
+
+/* --- Styling the single visible card to suggest a pile underneath --- */
+.stockCard {
+    /* Inherits all your .card styles (width, height, etc.) */
+    position: relative; /* Change from 'absolute' if you want it to behave normally in its container */
+    
+    /* ADD VISUAL DEPTH HINT: */
+    box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.5), 
+                4px 4px 0 0 rgba(0, 0, 0, 0.3);
+    /* This creates a simple shadow stack, making the single card look like it has cards beneath it. */
+}
+
+/* Optional: If the stock is empty */
+.emptyStock {
+    width: 50px;
+    height: 80px;
+    border: 2px dashed #666;
+    border-radius: 10px;
+    background-color: #eee;
+}
