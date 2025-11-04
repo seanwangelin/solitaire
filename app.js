@@ -169,10 +169,9 @@ const app = () => {
 
             const cardElement = createCardElement(card);
             cardElement.classList.add('bottomStockCard');
-
             cardElement.style.setProperty("--card-depth", i + 1);
-
             drawContainer.appendChild(cardElement);
+            console.log(card);
         }
 
         cardIndex += cardsToDraw;
