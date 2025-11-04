@@ -71,6 +71,7 @@ const shuffle = () => {
 const app = () => {
     const gameContainer = document.getElementById("gameContainer");
     const stockContainer = document.getElementById("stockContainer");
+    const drawContainer = document.getElementById("drawContainer");
 
     shuffle();
     let cardIndex = 0;
@@ -109,7 +110,13 @@ const app = () => {
             const stockCard = deck[cardIndex];
             stockCard.faceUp = false;
             const stockCardElement = createCardElement(stockCard);
-            stockCard.className = "stockCard";
+            stockContainer.removeEventListener('click', drawCards);
+
+            // (2) Add the listener to the specific card element
+            stockCardElement.addEventListener('click', drawCards);
+
+            stockCardElement.classList.add("stockCard"); // Use classList.add, not setting .className
+            stockContainer.innerHTML = ''; // Clear container before appending new card
             stockContainer.appendChild(stockCardElement);
 
             console.log("Creating stock pile");
@@ -119,21 +126,69 @@ const app = () => {
         }
     };
 
+    const updateStockPileVisual = () => {
+        stockContainer.innerHTML = '';
+
+        if (cardIndex < deck.length) {
+            const stockCard = deck[cardIndex];
+            stockCard.faceUp = false;
+            const stockCardElement = createCardElement(stockCard);
+
+            // Re-attach the listener to the new card
+            stockCardElement.addEventListener('click', drawCards);
+
+            stockCardElement.classList.add("stockCard");
+            stockContainer.appendChild(stockCardElement);
+        } else {
+            // Render the empty pile placeholder
+            stockContainer.innerHTML = '<div class="emptyStock"></div>';
+        }
+    };
+
     const drawCards = () => {
-        // Draw 3 cards from the stock pile on click
-        // for (let i = 0; i < 3; i++) {
-        // }
+        let remainingCards = deck.length - cardIndex;
+        let cardsToDraw = Math.min(3, remainingCards);
+
+        if (cardsToDraw === 0) {
+            // Future Logic: If Stock is empty, you'd usually move the Waste Pile back to Stock here.
+            console.log("Stock pile is empty.");
+            return;
+        }
+
+        drawContainer.innerHTML = '';
+
+        for (let i = 0; i < cardsToDraw; i++) {
+            const card = deck[cardIndex + i];
+
+            if (i === cardsToDraw - 1) {
+                card.faceUp = true;
+            } else {
+                card.faceUp = false;
+            }
+
+
+            const cardElement = createCardElement(card);
+            cardElement.classList.add('bottomStockCard');
+
+            cardElement.style.setProperty("--card-depth", i + 1);
+
+            drawContainer.appendChild(cardElement);
+        }
+
+        cardIndex += cardsToDraw;
+
+        updateStockPileVisual();
+
         console.log("Drawing cards from stock pile");
+        console.log(`Cards drawn: ${cardsToDraw}`);
+        console.log(`Deck count: ${remainingCards}`);
     }
 
     stockContainer.addEventListener('click', drawCards);
 
-    console.log(deck);
-    console.log(`Deck count: ${deck.length - cardIndex}`);
-
     initialDeal();
+    console.log(deck);
 };
-
 //     gameContainer ? gameContainer.innerHTML = '' : console.error("HTML element with ID 'gameContainer' not found.");
 //     for (const card of deck) {
 //         const cardElement = createCardElement(card);

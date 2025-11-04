@@ -70,3 +70,23 @@
     border-radius: 10px;
     background-color: #eee;
 }
+
+#drawContainer {
+    position: relative; 
+    width: 250px; /* Wide enough for 3 overlapping cards */
+    height: 100px;
+    margin-left: 15px;
+}
+
+/* Positioning for the drawn cards */
+.bottomStockCard {
+    /* Inherits general .card styles */
+    position: absolute; 
+    top: 0;
+    
+    /* Calculate horizontal overlap */
+    left: calc(var(--card-depth) * 20px); 
+    
+    /* Ensure the last card is visibly on top */
+    z-index: var(--card-depth); 
+}
