@@ -11,7 +11,7 @@ const createDeck = () => {
             if (value === 'J' || value === 'Q' || value === 'K') weight = 10;
             if (value === 'A') weight = 11;
 
-            let card = { value: value, suit: suit, weight: weight };
+            let card = { value: value, suit: suit, weight: weight, faceUp: false };
             deck.push(card);
             console.log(`Here is the deck: ${card.value} of ${card.suit} with weight ${card.weight}`);
         }
@@ -21,6 +21,13 @@ const createDeck = () => {
 const createCardElement = (card) => { 
     let element = document.createElement('div');
     element.className = 'card';
+
+    if (!card.faceUp) {
+        element.classList.add('faceDown');
+        return element;
+    } else {
+        element.classList.add('faceUp');
+    }
 
     let icon;
     if (card.suit === 'Hearts')
