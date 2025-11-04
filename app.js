@@ -12,9 +12,8 @@ const createDeck = () => {
             if (value === 'J' || value === 'Q' || value === 'K') weight = 10;
             if (value === 'A') weight = 11;
 
-            let card = { value: value, suit: suit, weight: weight };
+            let card = { value: value, suit: suit, weight: weight, faceUp: false };
             deck.push(card);
-            console.log(`Here is the deck: ${card.value} of ${card.suit} with weight ${card.weight}`);
         }
     }
 }
@@ -23,6 +22,13 @@ const createDeck = () => {
 const createCardElement = (card) => { 
     let element = document.createElement('div');
     element.className = 'card';
+
+    if (!card.faceUp) {
+        element.classList.add('faceDown');
+        return element;
+    } else {
+        element.classList.add('faceUp');
+    }
 
     let icon;
     if (card.suit === 'Hearts')
@@ -41,7 +47,7 @@ const createCardElement = (card) => {
 
 // shuffles up the deck
 //SRC: https://www.thatsoftwaredude.com/content/6417/how-to-code-blackjack-using-javascript
-function shuffle() {
+const shuffle = () => {
     for(let i = 0; i < 1000; i++) {
         let card1 = Math.floor((Math.random() * deck.length));
         let card2 = Math.floor((Math.random() * deck.length));
@@ -52,16 +58,66 @@ function shuffle() {
 }
 
 // Function to render the deck on the webpage
-const renderDeck = () => {
+const app = () => {
     const gameContainer = document.getElementById('gameContainer');
+    const stockContainer = document.getElementById('stockContainer');
 
-    gameContainer ? gameContainer.innerHTML = '' : console.error("HTML element with ID 'gameContainer' not found.");
-    for (const card of deck) {
-        const cardElement = createCardElement(card);
-        gameContainer.appendChild(cardElement);
+    shuffle();
+
+    let cardIndex = 0;
+    for (let i =1; i <= 7; i++) {
+        const pileElement = document.createElement('div');
+        pileElement.className = 'cardPile';
+        gameContainer.appendChild(pileElement);
+
+        for (let j = 1; j <= i; j++) {
+            if (cardIndex >= deck.length) break;
+
+            const card = deck[cardIndex];
+
+            if (j === i) {
+                card.faceUp = true;
+            } else {
+                card.faceUp = false;
+            }
+
+            const cardElement = createCardElement(card);
+            
+            // To allow for CSS stacking/overlapping, we'll set a custom property 
+            // on the element to indicate its depth in the pile (optional, but good practice).
+            cardElement.style.setProperty('--card-depth', j); 
+            
+            pileElement.appendChild(cardElement);
+            cardIndex++;
+        }
     }
+
+    if (cardIndex < deck.length) {
+        const stockCard = deck[cardIndex];
+        stockCard.faceUp = false;
+        const stockCardElement = createCardElement(stockCard);
+        stockCard.className = 'stockCard';
+        stockContainer.appendChild(stockCardElement);
+        
+
+
+        console.log("Creating stock pile");
+    } else {
+        stockContainer.innerHTML = '<div class="emptyStock"></div>';
+        console.log("No cards left for stock pile");
+    }
+
+    console.log(deck);
+    console.log(`Deck count: ${deck.length - cardIndex}`);
 }
+
+//     gameContainer ? gameContainer.innerHTML = '' : console.error("HTML element with ID 'gameContainer' not found.");
+//     for (const card of deck) {
+//         const cardElement = createCardElement(card);
+//         gameContainer.appendChild(cardElement);
+//     }
+// }
 
 createDeck();
 shuffle();
-renderDeck();
+app();
