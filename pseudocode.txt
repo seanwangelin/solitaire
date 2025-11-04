@@ -1,0 +1,11 @@
+function createDeck ()
+    for (let i=0, i < cardValues.length, i++)
+        for (let x=0, x < suits.length, x++)
+            let weight = parsInt(values[i])
+            if cardValues[i] = J or Q or K
+                weight = 10
+            if cardValues[i] = A
+                weight = 11
+            let card = {Value: cardValues[i], Suit: suits[x], Weight, weight[x]}
+            deck.push(card);
+
