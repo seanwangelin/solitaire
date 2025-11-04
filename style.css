@@ -1,27 +1,47 @@
-.card.faceUp {
+.card {
     width: 50px;
     height: 80px;
     padding: 10px;
-    border: solid 1px grey;
-    background-color: white;
-    display: inline-block;
     border-radius: 10px;
+    display: inline-block; /* Useful for base display, though position:absolute overrides flow */
     font-size: 10pt;
     text-align: center;
-    margin: 3px;
-    border: solid 3px;
+    margin: 3px; 
+    border: solid 3px; /* This defines the border width */
+    /* Keep existing card styles (width, height, border, etc.) */
+    
+    position: absolute;    /* CRUCIAL: Allows cards to stack on top of each other */
+    left: 0;               /* Anchor cards to the left edge of the pile */
+    
+    /* Calculate the vertical offset based on its position in the pile */
+    /* We use the custom property set in JavaScript: --card-depth */
+    top: calc(var(--card-depth) * 25px); /* Creates 25px of overlap per card */
+    
+    /* Ensure face-up cards are always on top visually */
+    z-index: var(--card-depth); 
 }
 
 .card.faceDown {
-    width: 50px;
-    height: 80px;
-    padding: 10px;
-    border: solid 1px grey;
-    background-color: lightblue;
-    display: inline-block;
-    border-radius: 10px;
-    font-size: 10pt;
-    text-align: center;
-    margin: 3px;
-    border: solid 3px;
+    background-color: darkgreen; /* Or a blue/red pattern */
+    color: darkgreen;          /* Hides the text by matching background */
+    border-color: black;
+}
+
+.card.faceUp {
+    background-color: white;
+    color: black; /* Or red for Hearts/Diamonds */
+    border-color: grey;
+}
+
+#gameContainer {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.cardPile {
+    position: relative;    /* CRUCIAL: Makes the pile a reference for absolute card positioning */
+    min-height: 250px;     /* Ensure there is space for the longest pile (7 cards) */
+    width: 70px;           /* Width of the card plus some padding */
 }

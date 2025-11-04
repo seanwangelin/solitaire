@@ -59,16 +59,47 @@ function shuffle() {
 }
 
 // Function to render the deck on the webpage
-const renderDeck = () => {
+const renderGame = () => {
     const gameContainer = document.getElementById('gameContainer');
 
-    gameContainer ? gameContainer.innerHTML = '' : console.error("HTML element with ID 'gameContainer' not found.");
-    for (const card of deck) {
-        const cardElement = createCardElement(card);
-        gameContainer.appendChild(cardElement);
+    shuffle();
+
+    let cardIndex = 0;
+    for (let i =1; i <= 7; i++) {
+        const pileElement = document.createElement('div');
+        pileElement.className = 'cardPile';
+        gameContainer.appendChild(pileElement);
+
+        for (let j = 1; j <= i; j++) {
+            if (cardIndex >= deck.length) break;
+
+            const card = deck[cardIndex];
+
+            if (j === i) {
+                card.faceUp = true;
+            } else {
+                card.faceUp = false;
+            }
+
+            const cardElement = createCardElement(card);
+            
+            // To allow for CSS stacking/overlapping, we'll set a custom property 
+            // on the element to indicate its depth in the pile (optional, but good practice).
+            cardElement.style.setProperty('--card-depth', j); 
+            
+            pileElement.appendChild(cardElement);
+            cardIndex++;
+        }
     }
 }
 
+//     gameContainer ? gameContainer.innerHTML = '' : console.error("HTML element with ID 'gameContainer' not found.");
+//     for (const card of deck) {
+//         const cardElement = createCardElement(card);
+//         gameContainer.appendChild(cardElement);
+//     }
+// }
+
 createDeck();
 shuffle();
-renderDeck();
+renderGame();
