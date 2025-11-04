@@ -58,7 +58,7 @@ const shuffle = () => {
 }
 
 // Function to render the deck on the webpage
-const renderGame = () => {
+const app = () => {
     const gameContainer = document.getElementById('gameContainer');
     const stockContainer = document.getElementById('stockContainer');
 
@@ -120,4 +120,4 @@ const renderGame = () => {
 
 createDeck();
 shuffle();
-renderGame();
+app();
