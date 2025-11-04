@@ -3,6 +3,7 @@ const cardValues = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K',
 
 let deck = [];
 
+// Function to create a standard deck of 52 playing cards
 const createDeck = () => {
     deck = [];
     for (const value of cardValues) {
@@ -18,6 +19,7 @@ const createDeck = () => {
     }
 }
 
+// Function to create a card element for rendering
 const createCardElement = (card) => { 
     let element = document.createElement('div');
     element.className = 'card';
@@ -44,6 +46,19 @@ const createCardElement = (card) => {
     return element;
 }
 
+// shuffles up the deck
+//SRC: https://www.thatsoftwaredude.com/content/6417/how-to-code-blackjack-using-javascript
+function shuffle() {
+    for(let i = 0; i < 1000; i++) {
+        let card1 = Math.floor((Math.random() * deck.length));
+        let card2 = Math.floor((Math.random() * deck.length));
+        let tmp = deck[card1];
+        deck[card1] = deck[card2];
+        deck[card2] = tmp;
+    }
+}
+
+// Function to render the deck on the webpage
 const renderDeck = () => {
     const gameContainer = document.getElementById('gameContainer');
 
@@ -55,4 +70,5 @@ const renderDeck = () => {
 }
 
 createDeck();
+shuffle();
 renderDeck();
