@@ -3,6 +3,7 @@ const cardValues = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K',
 
 let deck = [];
 
+// Function to create a standard deck of 52 playing cards
 const createDeck = () => {
     deck = [];
     for (const value of cardValues) {
@@ -18,6 +19,7 @@ const createDeck = () => {
     }
 }
 
+// Function to create a card element for rendering
 const createCardElement = (card) => { 
     let element = document.createElement('div');
     element.className = 'card';
@@ -37,6 +39,7 @@ const createCardElement = (card) => {
     return element;
 }
 
+// Function to render the deck on the webpage
 const renderDeck = () => {
     const gameContainer = document.getElementById('gameContainer');
 
