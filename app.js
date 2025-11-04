@@ -189,12 +189,6 @@ const app = () => {
     initialDeal();
     console.log(deck);
 };
-//     gameContainer ? gameContainer.innerHTML = '' : console.error("HTML element with ID 'gameContainer' not found.");
-//     for (const card of deck) {
-//         const cardElement = createCardElement(card);
-//         gameContainer.appendChild(cardElement);
-//     }
-// }
 
 createDeck();
 shuffle();
