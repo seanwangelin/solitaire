@@ -43,6 +43,9 @@ const createCardElement = (card) => {
         return element;
     } else {
         element.classList.add("faceUp");
+        element.draggable = true;
+        element.addEventListener('dragstart', handleDragStart);
+        element.addEventListener('dragend', handleDragEnd);
     }
 
     let icon;
@@ -55,6 +58,8 @@ const createCardElement = (card) => {
     else icon = "&clubs;";
 
     element.innerHTML = card.value + "<br/>" + icon;
+    element.dataset.value = card.value;
+    element.dataset.suit = card.suit;
 
     return element;
 };
@@ -69,6 +74,85 @@ const shuffle = () => {
         deck[card1] = deck[card2];
         deck[card2] = tmp;
     }
+};
+
+let draggedCardElement = null;
+let draggedCardData = {}; // To store the necessary data about the card and its origin
+
+// Function to run when dragging starts
+const handleDragStart = (e) => {
+    draggedCardElement = e.currentTarget;
+    
+    // Store data about the dragged card element
+    // e.dataTransfer.setData is required for the drop to work in some browsers
+    // We'll use a simple text/plain for a placeholder, but the real data is in draggedCardData
+    e.dataTransfer.setData('text/plain', 'card'); 
+
+    // Find the actual card object in your game state (This logic is complex and dependent on your data structure)
+    // For now, we'll store basic DOM info. A full implementation would need to look up the card in the `deck` or `drawnCards` arrays.
+    draggedCardData = {
+        value: draggedCardElement.dataset.value,
+        suit: draggedCardElement.dataset.suit,
+        // The parent is important to know where the card is coming *from*
+        sourceContainerId: draggedCardElement.parentNode.id, 
+        sourceContainerClass: draggedCardElement.parentNode.className,
+    };
+
+    setTimeout(() => {
+        draggedCardElement.classList.add('dragging'); // Optional visual cue
+    }, 0);
+};
+
+// Function to allow dropping (prevents default to enable drop)
+const handleDragOver = (e) => {
+    e.preventDefault(); 
+    // Here is where you would add logic to check if the move is *valid*
+    // For example, is the dragged card one value less and opposite color?
+    // You could visually highlight the drop target here.
+};
+
+// Function to run when the card is dropped
+const handleDrop = (e) => {
+    e.preventDefault();
+    
+    let dropTarget = e.currentTarget;
+
+    if (dropTarget.classList.contains('card')) {
+        dropTarget = dropTarget.parentNode; // Drop onto the pile containing the card
+    }
+
+    // Check for a valid drop (simplified check for demonstration)
+    if (dropTarget.classList.contains('cardPile') || dropTarget.classList.contains('foundationPile')) {
+        // --- Game Logic Check Goes Here ---
+        // 1. Is the move legal (e.g., King on an empty column, alternating colors/descending value)?
+        
+        // Assuming the move is legal:
+        
+        // 2. Move the card element in the DOM
+        dropTarget.appendChild(draggedCardElement);
+        draggedCardElement.classList.remove('dragging');
+        const newDepth = dropTarget.children.length;
+        draggedCardElement.style.setProperty("--card-depth", newDepth);
+
+        // 3. Update the game data (Move the card object from one array to another, e.g., from a column array to a new column array)
+        // This is the most complex part of a real Solitaire game and requires a proper data structure (like an array of arrays for the 7 columns).
+        
+        console.log(`Card ${draggedCardData.value} of ${draggedCardData.suit} dropped onto: ${dropTarget.id || dropTarget.className}`);
+        
+        // *** IMPORTANT ***: You would need to add logic here to "flip" the card underneath 
+        // in the source column if the dragged card was the last face-up card.
+    } else {
+        // Drop was on an invalid target, revert visual state
+        draggedCardElement.classList.remove('dragging');
+    }
+    
+    draggedCardElement = null;
+    draggedCardData = {};
+};
+
+// Function to clean up the dragging state
+const handleDragEnd = (e) => {
+    e.currentTarget.classList.remove('dragging');
 };
 
 // Function to render the deck on the webpage
@@ -88,6 +172,9 @@ const app = () => {
         for (let i = 1; i <= 7; i++) {
             const pileElement = document.createElement("div");
             pileElement.className = "cardPile";
+            pileElement.id = `tableau-pile${i}`;
+            pileElement.addEventListener('dragover', handleDragOver);
+            pileElement.addEventListener('drop', handleDrop);
             gameContainer.appendChild(pileElement);
 
             for (let j = 1; j <= i; j++) {
