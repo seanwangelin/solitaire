@@ -33,6 +33,10 @@
     border-color: grey;
 }
 
+.card.redCard {
+    color: red;
+}
+
 #gameContainer {
     display: flex;
     gap: 15px;
@@ -49,6 +53,13 @@
 #stockContainer {
     /* If you want the stock pile and tableau in the same row, you might need a parent flex container */
     margin: 20px; 
+}
+
+.resetStockButton {
+    margin-right: 100px;
+    padding: 5px 10px;
+    font-size: 10pt;
+    cursor: pointer;
 }
 
 /* --- Styling the single visible card to suggest a pile underneath --- */
@@ -76,6 +87,15 @@
     width: 250px; /* Wide enough for 3 overlapping cards */
     height: 100px;
     margin-left: 15px;
+}
+
+#resetDeckBtn {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    font-size: 10pt;
+    cursor: pointer;
+    display: none; /* Hidden by default, shown when needed */
+    border: thin solid black;
 }
 
 /* Positioning for the drawn cards */

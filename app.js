@@ -16,6 +16,7 @@ const cardValues = [
 ];
 
 let deck = [];
+let drawnCards = [];
 
 // Function to create a standard deck of 52 playing cards
 const createDeck = () => {
@@ -45,6 +46,9 @@ const createCardElement = (card) => {
     }
 
     let icon;
+
+    if (card.suit === "Hearts" || card.suit === "Diamonds") element.classList.add("redCard");
+
     if (card.suit === "Hearts") icon = "&hearts;";
     else if (card.suit === "Spades") icon = "&spades;";
     else if (card.suit === "Diamonds") icon = "&diams;";
@@ -72,9 +76,12 @@ const app = () => {
     const gameContainer = document.getElementById("gameContainer");
     const stockContainer = document.getElementById("stockContainer");
     const drawContainer = document.getElementById("drawContainer");
+    const resetDeckBtn = document.getElementById("resetDeckBtn");
+
+    const dealEndIndex = 28;
+    let cardIndex = 0;
 
     shuffle();
-    let cardIndex = 0;
 
     const initialDeal = () => {
         //deal cards to the 7 piles
@@ -145,21 +152,46 @@ const app = () => {
         }
     };
 
+    // Helper function used to reset the stock pile when all cards have been drawn
+    const resetStockPile = () => {
+    drawnCards.reverse();
+
+    for (const card of drawnCards) {
+        card.faceUp = false;
+    }
+
+    deck.splice(dealEndIndex, deck.length - dealEndIndex, ...drawnCards);
+    drawnCards = [];
+    cardIndex = dealEndIndex;
+    drawContainer.innerHTML = '';
+    updateStockPileVisual();
+
+    console.log("Stockpile reset: Waste pile moved back to stock and reversed.");
+}
+
     const drawCards = () => {
         let remainingCards = deck.length - cardIndex;
         let cardsToDraw = Math.min(3, remainingCards);
+        console.log('initial cards to draw: ' + cardsToDraw);
 
-        if (cardsToDraw === 0) {
-            // Future Logic: If Stock is empty, you'd usually move the Waste Pile back to Stock here.
-            console.log("Stock pile is empty.");
-            return;
-        }
+        // if (cardsToDraw === 0) {
+        //     if (drawnCards.length > 0) {
+        //         resetStockPile();
+        //     } else {
+        //         console.log("No cards left to draw from stock pile");
+        //     }
+        //     return;
+        // }
 
         drawContainer.innerHTML = '';
 
+        // For loop used to draw cards from stock pile. Adds card to drawnCards array and creates card element for each drawn card.
         for (let i = 0; i < cardsToDraw; i++) {
-            const card = deck[cardIndex + i];
+            const card = deck.splice(cardIndex, 1)[0];
+            drawnCards.push(card);
+            console.log(drawnCards)
 
+            // Set faceUp property: only the last drawn card is face up
             if (i === cardsToDraw - 1) {
                 card.faceUp = true;
             } else {
@@ -174,9 +206,21 @@ const app = () => {
             console.log(card);
         }
 
-        cardIndex += cardsToDraw;
-
+        // cardIndex += cardsToDraw;
+        
         updateStockPileVisual();
+
+        if (remainingCards <= 3) {
+            resetDeckBtn.textContent = 'Reset Deck';
+            resetDeckBtn.style.display = 'inline-block'; // Show the button
+
+            resetDeckBtn.onclick = () => {
+                resetStockPile();
+                resetDeckBtn.style.display = 'none'; // Hide the button after resetting
+            };
+
+            document.getElementById("resetDeckBtn").appendChild(resetDeckBtn);
+        }
 
         console.log("Drawing cards from stock pile");
         console.log(`Cards drawn: ${cardsToDraw}`);
