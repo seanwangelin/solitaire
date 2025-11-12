@@ -89,7 +89,7 @@
 }
 
 /* Optional: If the stock is empty */
-.emptyStock {
+.emptyStock, .foundationPile {
     width: 50px;
     height: 80px;
     border: 2px dashed #666;
@@ -97,8 +97,24 @@
     background-color: #eee;
 }
 
+.foundationArea {
+    display: flex;
+    padding: 2vw 0 2vw 0;
+}
+
+.foundationPile {
+    width: 50px;           /* Width of the card plus some padding */
+    min-height: 80px;      /* Minimum height to accommodate a single card; allows stacking */
+    margin-right: 15px;    /* Spacing between foundation piles */
+    position: relative;    /* To allow absolute positioning of cards within */
+    border: 2px dashed #666;
+    border-radius: 10px;
+    background-color: #eee;
+}
+
 #drawBox {
     display: flex;
+    height: 12vw;
 }
 
 #drawContainer {

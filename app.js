@@ -18,6 +18,16 @@ const cardValues = [
 let deck = [];
 let drawnCards = [];
 
+let tableauPiles = [
+    [],                    // Column 1 (tableau-pile1)
+    [],                    // Column 2 (tableau-pile2)
+    [],                    // Column 3 (tableau-pile3)
+    [],                    // Column 4 (tableau-pile4)
+    [],                    // Column 5 (tableau-pile5)
+    [],                    // Column 6 (tableau-pile6)
+    []                     // Column 7 (tableau-pile7)
+];
+
 // Function to create a standard deck of 52 playing cards
 const createDeck = () => {
     deck = [];
@@ -26,8 +36,10 @@ const createDeck = () => {
             let weight = parseInt(value);
             if (value === "J" || value === "Q" || value === "K") weight = 10;
             if (value === "A") weight = 11;
+            if (suit === "Hearts" || suit === "Diamonds") color = "red";
+            if (suit === "Clubs" || suit === "Spades") color = "black";
 
-            let card = { value: value, suit: suit, weight: weight, faceUp: false };
+            let card = { value: value, suit: suit, weight: weight, faceUp: false, color: color };
             deck.push(card);
         }
     }
@@ -102,6 +114,7 @@ const handleDragStart = (e) => {
     draggedCardData = {
         value: draggedCardElement.dataset.value,
         suit: draggedCardElement.dataset.suit,
+        // Calculate color based on suit
         // The parent is important to know where the card is coming *from*
         sourceContainerId: sourceContainer.id,
         sourceContainerClass: sourceContainer.className,
@@ -154,7 +167,24 @@ const handleDragStart = (e) => {
 
 // Function to allow dropping (prevents default to enable drop)
 const handleDragOver = (e) => {
+    console.log(`dragged card data: ${JSON.stringify(draggedCardData)}`);
+
+    let dropTarget = e.currentTarget;
+    const topCard = dropTarget.querySelector('.card:last-child');
+    const topCardValue = topCard ? topCard.dataset.value : null;
+    const topCardSuit = topCard ? topCard.dataset.suit : null;
+    const topCardColor = topCard ? topCard.dataset.color : null;
+
+    console.log(`Top card on drop target: ${topCardValue} of ${topCardSuit}`);
+
+    if (draggedCardData.color === "black" && topCardColor === "black") {
+        console.log('invalid move');
+    } else {
+        console.log('valid move');
+    }
     e.preventDefault();
+
+
     // Here is where you would add logic to check if the move is *valid*
     // For example, is the dragged card one value less and opposite color?
     // You could visually highlight the drop target here.
@@ -172,8 +202,7 @@ const handleDrop = (e) => {
 
     // Check for a valid drop (simplified check for demonstration)
     if (dropTarget.classList.contains('cardPile') || dropTarget.classList.contains('foundationPile')) {
-        // --- Game Logic Check Goes Here ---
-        // 1. Is the move legal (e.g., King on an empty column, alternating colors/descending value)?
+        // --- GAME LOGIC
 
         // Assuming the move is legal:
 
@@ -253,7 +282,7 @@ const app = () => {
         for (let i = 1; i <= 7; i++) {
             const pileElement = document.createElement("div");
             pileElement.className = "cardPile";
-            pileElement.id = `tableau-pile${i}`;
+            pileElement.id = `tableauPile${i}`;
             pileElement.addEventListener('dragover', handleDragOver);
             pileElement.addEventListener('drop', handleDrop);
             tableauPilesContainer.appendChild(pileElement);
@@ -268,6 +297,9 @@ const app = () => {
                 } else {
                     card.faceUp = false;
                 }
+
+                // Add card object to the tableauPiles array (use i-1 for 0-based indexing)
+                tableauPiles[i - 1].push(card);
 
                 const cardElement = createCardElement(card);
 
@@ -429,3 +461,4 @@ const app = () => {
 createDeck();
 shuffle();
 app();
+console.log(tableauPiles[6]);
