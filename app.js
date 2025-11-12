@@ -1,5 +1,5 @@
 const suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
-const cardValues = [
+const cardNumberValues = [
     "2",
     "3",
     "4",
@@ -21,7 +21,7 @@ let drawnCards = [];
 // Function to create a standard deck of 52 playing cards
 const createDeck = () => {
     deck = [];
-    for (const value of cardValues) {
+    for (const value of cardNumberValues) {
         for (const suit of suits) {
             let weight = parseInt(value);
             if (value === "J" || value === "Q" || value === "K") weight = 10;
@@ -30,11 +30,11 @@ const createDeck = () => {
             if (suit === "Hearts" || suit === "Diamonds") color = "red";
             if (suit === "Clubs" || suit === "Spades") color = "black";
 
-            let card = { 
-                value: value, 
-                suit: suit, 
-                weight: weight, 
-                faceUp: false, 
+            let card = {
+                value: value,
+                suit: suit,
+                weight: weight,
+                faceUp: false,
                 color: color,
                 pile: null  // Track which pile: 'tableau-1' through 'tableau-7', 'foundation-hearts', 'stock', 'draw', etc.
             };
@@ -95,10 +95,10 @@ const handleDragStart = (e) => {
     draggedCardElement = e.currentTarget;
     const sourceContainer = draggedCardElement.parentNode;
     const allCards = Array.from(sourceContainer.querySelectorAll('.card'));
-    
+
     // Find the index of the dragged card
     const draggedIndex = allCards.indexOf(draggedCardElement);
-    
+
     // Get the dragged card elements and all cards on top of it
     draggedCards = allCards.slice(draggedIndex);
 
@@ -119,7 +119,7 @@ const handleDragStart = (e) => {
         dragImage.style.top = '-9999px';
         dragImage.style.width = '70px';
         dragImage.style.pointerEvents = 'none';
-        
+
         // Clone all dragged cards and add them to the drag image
         draggedCards.forEach((card, index) => {
             const clonedCard = card.cloneNode(true);
@@ -131,12 +131,12 @@ const handleDragStart = (e) => {
             clonedCard.classList.remove('dragging'); // Remove dragging class to avoid style conflicts
             dragImage.appendChild(clonedCard);
         });
-        
+
         document.body.appendChild(dragImage);
-        
+
         // Set the custom drag image
         e.dataTransfer.setDragImage(dragImage, 0, 0);
-        
+
         // Remove the drag image element after drag starts
         setTimeout(() => {
             document.body.removeChild(dragImage);
@@ -159,23 +159,41 @@ const handleDragOver = (e) => {
     if (!draggedCard) return;  // No card being dragged
 
     let dropTarget = e.currentTarget;
-    
+
     // Get the top card element from the target pile
     const topCardElement = dropTarget.querySelector('.card:last-child');
-    
+
     // Find the top card object in the deck
-    const topCard = topCardElement ? deck.find(c => 
-        c.value === topCardElement.dataset.value && 
-        c.suit === topCardElement.dataset.suit && 
+    const topCard = topCardElement ? deck.find(c =>
+        c.value === topCardElement.dataset.value &&
+        c.suit === topCardElement.dataset.suit &&
         c.pile === dropTarget.id
     ) : null;
 
-    // Validation: cards must have opposite colors
+    // Cards must have opposite colors
     if (topCard && draggedCard.color === topCard.color) {
         console.log(`Invalid move: ${draggedCard.color} card on ${topCard.color} card`);
         return;
     }
-    
+
+    // Cards must be in descending order
+    if (topCard && draggedCard.weight !== topCard.weight - 1) {
+
+        // Special case: Ace allowed on 2
+        if (draggedCard.value === "A" && topCard.value === "2") {
+            console.log(`Valid move: ${draggedCard.value} can be placed on ${topCard.value}`);
+        } else {
+        console.log(`Invalid move: ${draggedCard.value} cannot be placed on ${topCard.value}`);
+        return;
+        }
+    }
+
+    // If pile is empty, only Kings can start
+    if (!topCard && draggedCard.value !== "K") {
+        console.log(`Invalid move: only King can be placed on empty pile`);
+        return;
+    }
+
     console.log(`Valid move: ${draggedCard.value} of ${draggedCard.suit} can move`);
     e.preventDefault();  // Only allow drop if validation passes
 };
@@ -198,25 +216,25 @@ const handleDrop = (e) => {
             card.classList.remove('dragging');
             card.classList.remove('bottomStockCard');
         });
-        
+
         // Update z-index for all cards in the target pile
         const cards = dropTarget.querySelectorAll('.card');
         cards.forEach((card, index) => {
             card.style.setProperty("--card-depth", index + 1);
             card.style.zIndex = 10000 + index;
         });
-        
+
         // Update the deck: change the pile property for all dragged cards
         draggedCards.forEach(cardElement => {
-            const cardObj = deck.find(c => 
-                c.value === cardElement.dataset.value && 
+            const cardObj = deck.find(c =>
+                c.value === cardElement.dataset.value &&
                 c.suit === cardElement.dataset.suit
             );
             if (cardObj) {
                 cardObj.pile = dropTarget.id;  // Update pile in the deck
             }
         });
-        
+
         console.log(`Card(s) moved to: ${dropTarget.id}`);
 
     } else {
