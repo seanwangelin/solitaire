@@ -18,16 +18,6 @@ const cardValues = [
 let deck = [];
 let drawnCards = [];
 
-let tableauPiles = [
-    [],                    // Column 1 (tableau-pile1)
-    [],                    // Column 2 (tableau-pile2)
-    [],                    // Column 3 (tableau-pile3)
-    [],                    // Column 4 (tableau-pile4)
-    [],                    // Column 5 (tableau-pile5)
-    [],                    // Column 6 (tableau-pile6)
-    []                     // Column 7 (tableau-pile7)
-];
-
 // Function to create a standard deck of 52 playing cards
 const createDeck = () => {
     deck = [];
@@ -36,10 +26,18 @@ const createDeck = () => {
             let weight = parseInt(value);
             if (value === "J" || value === "Q" || value === "K") weight = 10;
             if (value === "A") weight = 11;
+            let color = "";
             if (suit === "Hearts" || suit === "Diamonds") color = "red";
             if (suit === "Clubs" || suit === "Spades") color = "black";
 
-            let card = { value: value, suit: suit, weight: weight, faceUp: false, color: color };
+            let card = { 
+                value: value, 
+                suit: suit, 
+                weight: weight, 
+                faceUp: false, 
+                color: color,
+                pile: null  // Track which pile: 'tableau-1' through 'tableau-7', 'foundation-hearts', 'stock', 'draw', etc.
+            };
             deck.push(card);
         }
     }
@@ -89,7 +87,7 @@ const shuffle = () => {
 };
 
 let draggedCardElement = null;
-let draggedCardData = {}; // To store the necessary data about the card and its origin
+let draggedCard = null;  // Store the actual card object from deck
 let draggedCards = []; // To store the dragged card and all cards on top of it
 
 // Function to run when dragging starts
@@ -101,25 +99,16 @@ const handleDragStart = (e) => {
     // Find the index of the dragged card
     const draggedIndex = allCards.indexOf(draggedCardElement);
     
-    // Get the dragged card and all cards on top of it
+    // Get the dragged card elements and all cards on top of it
     draggedCards = allCards.slice(draggedIndex);
 
-    // Store data about the dragged card element
-    // e.dataTransfer.setData is required for the drop to work in some browsers
-    // We'll use a simple text/plain for a placeholder, but the real data is in draggedCardData
-    e.dataTransfer.setData('text/plain', 'card');
+    // Find the actual card object in deck by matching value and suit
+    const cardValue = draggedCardElement.dataset.value;
+    const cardSuit = draggedCardElement.dataset.suit;
+    draggedCard = deck.find(c => c.value === cardValue && c.suit === cardSuit && c.pile === sourceContainer.id);
 
-    // Find the actual card object in your game state (This logic is complex and dependent on your data structure)
-    // For now, we'll store basic DOM info. A full implementation would need to look up the card in the `deck` or `drawnCards` arrays.
-    draggedCardData = {
-        value: draggedCardElement.dataset.value,
-        suit: draggedCardElement.dataset.suit,
-        // Calculate color based on suit
-        // The parent is important to know where the card is coming *from*
-        sourceContainerId: sourceContainer.id,
-        sourceContainerClass: sourceContainer.className,
-        sourceContainer: sourceContainer, // Store reference to source pile
-    };
+    // e.dataTransfer.setData is required for the drop to work in some browsers
+    e.dataTransfer.setData('text/plain', 'card');
 
     // Create a custom drag image that includes all dragged cards
     if (draggedCards.length > 1) {
@@ -167,27 +156,28 @@ const handleDragStart = (e) => {
 
 // Function to allow dropping (prevents default to enable drop)
 const handleDragOver = (e) => {
-    console.log(`dragged card data: ${JSON.stringify(draggedCardData)}`);
+    if (!draggedCard) return;  // No card being dragged
 
     let dropTarget = e.currentTarget;
-    const topCard = dropTarget.querySelector('.card:last-child');
-    const topCardValue = topCard ? topCard.dataset.value : null;
-    const topCardSuit = topCard ? topCard.dataset.suit : null;
-    const topCardColor = topCard ? topCard.dataset.color : null;
+    
+    // Get the top card element from the target pile
+    const topCardElement = dropTarget.querySelector('.card:last-child');
+    
+    // Find the top card object in the deck
+    const topCard = topCardElement ? deck.find(c => 
+        c.value === topCardElement.dataset.value && 
+        c.suit === topCardElement.dataset.suit && 
+        c.pile === dropTarget.id
+    ) : null;
 
-    console.log(`Top card on drop target: ${topCardValue} of ${topCardSuit}`);
-
-    if (draggedCardData.color === "black" && topCardColor === "black") {
-        console.log('invalid move');
-    } else {
-        console.log('valid move');
+    // Validation: cards must have opposite colors
+    if (topCard && draggedCard.color === topCard.color) {
+        console.log(`Invalid move: ${draggedCard.color} card on ${topCard.color} card`);
+        return;
     }
-    e.preventDefault();
-
-
-    // Here is where you would add logic to check if the move is *valid*
-    // For example, is the dragged card one value less and opposite color?
-    // You could visually highlight the drop target here.
+    
+    console.log(`Valid move: ${draggedCard.value} of ${draggedCard.suit} can move`);
+    e.preventDefault();  // Only allow drop if validation passes
 };
 
 // Function to run when the card is dropped
@@ -200,60 +190,42 @@ const handleDrop = (e) => {
         dropTarget = dropTarget.parentNode; // Drop onto the pile containing the card
     }
 
-    // Check for a valid drop (simplified check for demonstration)
+    // Check for a valid drop
     if (dropTarget.classList.contains('cardPile') || dropTarget.classList.contains('foundationPile')) {
-        // --- GAME LOGIC
-
-        // Assuming the move is legal:
-
-        // 2. Move all dragged cards to the target pile
+        // Move all dragged card elements to the target pile in the DOM
         draggedCards.forEach(card => {
             dropTarget.appendChild(card);
             card.classList.remove('dragging');
             card.classList.remove('bottomStockCard');
         });
         
-        // Update the depth for all cards in the target pile to ensure proper stacking
+        // Update z-index for all cards in the target pile
         const cards = dropTarget.querySelectorAll('.card');
         cards.forEach((card, index) => {
             card.style.setProperty("--card-depth", index + 1);
-            // Use much higher z-index values to override stacking context
             card.style.zIndex = 10000 + index;
         });
         
-        // Explicitly set the last dragged card to have the highest z-index
-        const lastDraggedCard = draggedCards[draggedCards.length - 1];
-        lastDraggedCard.style.zIndex = 10000 + cards.length;
-        console.log(`Card z-index set to: ${lastDraggedCard.style.zIndex}`);
+        // Update the deck: change the pile property for all dragged cards
+        draggedCards.forEach(cardElement => {
+            const cardObj = deck.find(c => 
+                c.value === cardElement.dataset.value && 
+                c.suit === cardElement.dataset.suit
+            );
+            if (cardObj) {
+                cardObj.pile = dropTarget.id;  // Update pile in the deck
+            }
+        });
+        
+        console.log(`Card(s) moved to: ${dropTarget.id}`);
 
-        // 3. Update the game data (Move the card object from one array to another, e.g., from a column array to a new column array)
-        // This is the most complex part of a real Solitaire game and requires a proper data structure (like an array of arrays for the 7 columns).
-
-        // Also update z-indexes in the source pile
-        if (draggedCardData.sourceContainer && draggedCardData.sourceContainer !== dropTarget) {
-            const sourceCards = draggedCardData.sourceContainer.querySelectorAll('.card');
-            sourceCards.forEach((card, index) => {
-                card.style.setProperty("--card-depth", index + 1);
-                card.style.zIndex = 10000 + index;
-            });
-        }
-
-        if (draggedCardData.sourceContainerId === "drawContainer") {
-            drawnCards.pop();
-            renderDrawPile();
-        }
-
-        console.log(`Card ${draggedCardData.value} of ${draggedCardData.suit} dropped onto: ${dropTarget.id || dropTarget.className}`);
-
-        // *** IMPORTANT ***: You would need to add logic here to "flip" the card underneath 
-        // in the source column if the dragged card was the last face-up card.
     } else {
         // Drop was on an invalid target, revert visual state
         draggedCardElement.classList.remove('dragging');
     }
 
     draggedCardElement = null;
-    draggedCardData = {};
+    draggedCard = null;
     draggedCards = [];
 };
 
@@ -298,8 +270,8 @@ const app = () => {
                     card.faceUp = false;
                 }
 
-                // Add card object to the tableauPiles array (use i-1 for 0-based indexing)
-                tableauPiles[i - 1].push(card);
+                // Set the pile property in the card object
+                card.pile = `tableauPile${i}`;
 
                 const cardElement = createCardElement(card);
 
@@ -317,6 +289,7 @@ const app = () => {
         if (cardIndex < deck.length) {
             const stockCard = deck[cardIndex];
             stockCard.faceUp = false;
+            stockCard.pile = 'stockContainer';  // Set pile property
             const stockCardElement = createCardElement(stockCard);
             stockContainer.removeEventListener('click', drawCards);
 
