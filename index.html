@@ -1,5 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solitaire</title>
+    <script defer src="app.js"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div id="gameContainer">
+        <div id="tableauPiles"></div>
+        <div id="topPiles">
+            <div id="drawBox">
+                <div id="stockContainer" class="cardPile"></div>
+                <div id="drawContainer" class="cardPile"></div>
+            </div>
+
+            <div class="foundationArea">
+                <div id="foundation-pile1" class="foundationPile cardPile"></div>
+                <div id="foundation-pile2" class="foundationPile cardPile"></div>
+                <div id="foundation-pile3" class="foundationPile cardPile"></div>
+                <div id="foundation-pile4" class="foundationPile cardPile"></div>
+            </div>
+        </div>
+
+        <button id="resetDeckBtn" style="display: none">Reset Deck</button>
+    </div>
+</body>
+
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,4 +47,4 @@
     <div id="stockContainer"></div>
     <div id="drawContainer"></div>
 </body>
-</html>
+</html> -->

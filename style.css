@@ -18,7 +18,10 @@
     top: calc(var(--card-depth) * 25px); /* Creates 25px of overlap per card */
     
     /* Ensure face-up cards are always on top visually */
-    z-index: var(--card-depth); 
+    z-index: var(--card-depth);
+    
+    /* Default: not explicitly set, will use CSS variable */
+    --card-z-index: var(--card-depth);
 }
 
 .card.faceDown {
@@ -37,7 +40,18 @@
     color: red;
 }
 
-#gameContainer {
+.card.dragging {
+    /* Position must be non-static for z-index to take effect */
+    position: absolute; 
+    
+    /* A high value to ensure it's on top of all other game elements */
+    z-index: 1000; 
+    
+    /* Optional: Make the card slightly transparent for a visual cue */
+    opacity: 0.8; 
+}
+
+#tableauPiles {
     display: flex;
     gap: 15px;
     align-items: flex-start;
@@ -48,6 +62,7 @@
     position: relative;    /* CRUCIAL: Makes the pile a reference for absolute card positioning */
     min-height: 250px;     /* Ensure there is space for the longest pile (7 cards) */
     width: 70px;           /* Width of the card plus some padding */
+    z-index: 0;            /* Reset z-index to break stacking context dominance */
 }
 
 #stockContainer {
@@ -80,6 +95,10 @@
     border: 2px dashed #666;
     border-radius: 10px;
     background-color: #eee;
+}
+
+#drawBox {
+    display: flex;
 }
 
 #drawContainer {
